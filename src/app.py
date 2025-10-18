@@ -12,6 +12,8 @@ import os
 from pathlib import Path
 import re
 import threading
+from pydantic import BaseModel
+from fastapi import Body
 
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
@@ -129,3 +131,35 @@ def signup_for_activity(activity_name: str, email: str):
         activity.setdefault("participants", []).append(email_clean)
 
     return {"message": f"Signed up {email_clean} for {activity_name}"}
+
+
+class ParticipantPayload(BaseModel):
+    email: str
+
+
+@app.delete("/activities/{activity_name}/participants")
+def unregister_participant(activity_name: str, payload: ParticipantPayload = Body(...)):
+    """Unregister a student (by email) from an activity"""
+    # Validate activity exists
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    email_clean = (payload.email or "").strip()
+    if not re.match(r"^[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+$", email_clean):
+        raise HTTPException(status_code=400, detail="Invalid email address")
+
+    normalized_email = email_clean.lower()
+
+    with activities_lock:
+        activity = activities[activity_name]
+        participants = activity.get("participants", [])
+        normalized_participants = [p.strip().lower() for p in participants]
+
+        if normalized_email not in normalized_participants:
+            raise HTTPException(status_code=404, detail="Participant not found in activity")
+
+        # Remove the first matching participant (case-insensitive)
+        idx = normalized_participants.index(normalized_email)
+        removed = participants.pop(idx)
+
+    return {"message": f"Unregistered {removed} from {activity_name}"}

@@ -92,9 +92,25 @@ section h3 {
 
 /* Lista de participantes con viñetas limpias */
 .activity-card .participants ul {
-  list-style: disc;
-  padding-left: 22px;
+  list-style: none; /* ocultar viñetas */
+  padding-left: 0;
   margin: 0;
+  display: block;
+}
+
+/* Botón eliminar junto al participante */
+.activity-card .participants .delete-btn {
+  background: transparent;
+  border: none;
+  color: #c62828;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  margin-left: auto; /* empuja al final en flex */
+}
+.activity-card .participants .delete-btn:hover {
+  background: rgba(198,40,40,0.08);
 }
 
 /* Item: avatar pequeño + nombre */
