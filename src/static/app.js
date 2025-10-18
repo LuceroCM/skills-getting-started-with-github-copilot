@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Helper: obtener iniciales de un nombre/email
   function getInitials(text) {
     if (!text) return "?";
-    const parts = String(text).split(/[\s@._-]+/).filter(Boolean);
-    if (parts.length === 0) return text.slice(0, 1).toUpperCase();
+    const parts = String(text).split(/[\s@._\-\s]+/).filter(Boolean);
+    if (parts.length === 0) return String(text).slice(0, 1).toUpperCase();
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
     return (parts[0][0] + parts[1][0]).toUpperCase();
   }
@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
       activitiesList.innerHTML = "";
       // Evitar duplicar opciones en el select
       activitySelect.innerHTML = "";
-      // (Opcional) agregar placeholder si el HTML original no lo tiene
       const placeholder = document.createElement("option");
       placeholder.value = "";
       placeholder.textContent = "Selecciona una actividad";
@@ -36,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const activityCard = document.createElement("div");
         activityCard.className = "activity-card";
 
-        const spotsLeft = details.max_participants - details.participants.length;
+        const spotsLeft = details.max_participants - (details.participants ? details.participants.length : 0);
 
         activityCard.innerHTML = `
           <h4>${name}</h4>
